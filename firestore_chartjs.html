@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Firebase Database ( Firestore ) + ChartJS</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.9/firebase.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script src="https://use.fontawesome.com/releases/v5.5.0/js/all.js" ></script>
+
+    <script src="http://www.chartjs.org/dist/2.8.0/Chart.bundle.js"></script>
+    <script src="http://www.chartjs.org/samples/latest/utils.js"></script>
+
+
+  </head>
+  <body>
+    <div class="container" >
+
+        <!-- กำหนด Element  สำหรับสร้างกราฟ -->
+        <canvas id="canvas" style="width: 100%"></canvas>
+
+    </div>
+  
+
+    <script >
+
+   //------------------------------ ตั้งค่า firebase ------------------------------
+   const config = {
+  apiKey: "AIzaSyAzyntMC7aZfE2mqr8ep4u7SyRqKfu7Ucw",
+  authDomain: "pmtest-15oct.firebaseapp.com",
+  databaseURL: "https://pmtest-15oct.firebaseio.com",
+  projectId: "pmtest-15oct",
+  storageBucket: "pmtest-15oct.appspot.com",
+  messagingSenderId: "347934230767",
+  appId: "1:347934230767:web:b7d934c2b13b6332c1331a",
+  measurementId: "G-0DBRPH61BV"
+};
+    firebase.initializeApp(config);
+    //------------------------------ ตั้งค่า firebase ------------------------------
+
+    const db = firebase.firestore();//สร้าตัวแปร object สำหรับอ้างอิง firestore
+  
+        db.collection("test30oct").get().then(function(data) { //อ่านข้อมูลจาก collection sale_report
+
+            var report_month=[];
+            var report=[];
+            var key_array=[];
+            var raw_data=[];
+
+            data.forEach(function(doc) {
+
+              report_month.push(doc.id);//เก็บเดือนของรายงานไว้ในตัวแปร report_month
+              report.push(doc.data());//เก็บยอดขายของสินค้าแต่ละอันไว้ในตัวแปร report
+
+            });
+
+            //-------- หาว่าในรายงานมีชื่อ product อะไรบ้าง --------------
+            report.forEach(function(report_item) {
+
+                Object.keys(report_item).forEach(function(key){
+
+                      if(key_array.indexOf(key)==-1)
+                      {
+                          key_array.push(key);//เก็บชื่อ Product ทีมีไว้ในตัวแปร key_array
+                      }
+
+                });
+
+            });
+
+            //------------ นำยอดขายของแต่ละสินค้าเป็บไว้ในตัวแปร raw_data ------------------
+            key_array.forEach(function(key){
+
+                number_array=[];
+              
+                report.forEach(function(report_item) {
+
+                  if(report_item[key]==null)
+                  {
+                    number_array.push(0);
+                  }
+                  else
+                  {
+                     number_array.push(report_item[key]);
+                  }
+               
+                });
+
+                raw_data.push({
+                  "key":key,//ชื่อสินค้า
+                  "number":number_array//array ยอดขายแต่ละเดือน
+                });
+
+            });
+
+            draw_chart(report_month,raw_data);//เรียก function  สร้างกราฟ โดย
+        });
+
+        function draw_chart(report_month,raw_data)
+        {
+              var colorNames = Object.keys(window.chartColors);
+              var color = Chart.helpers.color;
+              var datasets=[];
+
+              raw_data.forEach(function(raw_data_item,index){
+
+                  ///----- นำข้อมมูลยอดขายสินค้าแต่ละรายการใส่ใน datasets เพื่อแสดงเป็นกราฟ  -------
+                  datasets.push({
+                            label: raw_data_item.key,
+                            backgroundColor: color(colorNames[datasets.length]).alpha(0.5).rgbString(),
+                            borderWidth: 0,
+                            data: raw_data_item.number
+                  });
+
+              });
+
+              var barChartData = {
+                "labels": report_month,
+                "datasets":datasets
+              };
+
+              var ctx = document.getElementById('canvas').getContext('2d');
+
+              window.myBar = new Chart(ctx, {
+                    type: 'bar',                   // The type of chart we want to create
+                    data: barChartData,             // The data for our dataset
+                    options: {
+                          responsive: false,
+                          legend: {
+                            position: 'top',
+                          },
+                          title: {
+                            display: true,
+                            text: 'PM LINAC Checklist'
+                          },
+                          scales: {
+                              yAxes: [{
+                                  ticks: {
+                                      beginAtZero: true
+                                  }
+                              }]
+                          }
+                    }
+                });
+        }
+  
+    </script>
+ 
+  </body>
+</html>
