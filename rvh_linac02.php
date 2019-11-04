@@ -1,11 +1,12 @@
 <?php
-    //ตั้งค่าการเชื่อมต่อฐานข้อมูล
+//ตั้งค่าการเชื่อมต่อฐานข้อมูล
     $database_host             = 'localhost';
     $database_username         = 'root';
     $database_password         = 'pbiservice'; //set password at privileges on phpmyadmin
     $database_name             = 'lampang_cancer_hospital';
- 
+    $data ;
     $mysqli = new mysqli($database_host, $database_username, $database_password, $database_name);
+
 //กำหนด charset ให้เป็น utf8 เพื่อรองรับภาษาไทย
     $mysqli->set_charset("utf8");
  
@@ -13,17 +14,19 @@
     if ($mysqli->connect_error) {
         die('Error : ('. $mysqli->connect_errno .') '. $mysqli->connect_error);
     }
-        //เรียกข้อมูลจาก ตาราง linac_versahd_154406 
-        $get_data = $mysqli->query("SELECT * FROM linac_versahd_154406 WHERE DatePM = '2019-08-18'");
-            while($data = $get_data->fetch_assoc()){
-                $result[] = $data;
-            }
-        echo $data;
-        print json_encode($result[0]);
-        print $data;
-       // print $get_data[0];
+    
+//เรียกข้อมูลจาก ตาราง linac_versahd_154406 
+    $get_data = $mysqli->query("SELECT * FROM linac_versahd_154406 WHERE DatePM = '2019-08-18'");
+        while($data = $get_data->fetch_assoc()){
+            $result[] = $data;
+            printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
+        }
+          
+    //print json_encode($result[0]);    
+    //printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
         
-
+/* close connection */
+    $mysqli->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -59,15 +62,20 @@
             <th>Measured</th>
             <th>Investigate/Adjustment</th>
             <th>Result</th>
-        </tr>
+        </tr>         
     <!-- Gantry -->  
         <tr>
         <td rowspan="2" style="text-align:center">Gantry</td>
             <td>Gantry angle zero</td>
             <td>น้อยกว่าเท่ากับ 1.0 องศา</td>
-            <td>last value</td>
-            <td></td>
-            <td></td>
+            <?php
+                    foreach($result as $result_tb){
+                            echo "<td>".$result_tb['Input_to_stabilizer_L2']."</td>";
+                            echo "<td>".$result_tb['Input_to_stabilizer_L3']."</td>";                           
+                    }
+                ?>
+            
+            <td>Result</td> 
         </tr>
         <tr>
             <td>Description</td>
@@ -171,7 +179,12 @@
             <td rowspan="6" style="text-align:center">Main Supply</td>
             <td rowspan="3"><a href="db_lampang.php" target="_blank">Input to Stabilizer</a></td>
             <td rowspan="3">Functional</td>
-            <td>L1 = ... Vac</td>
+            <td>L1 = <?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['Input_to_stabilizer_L1'];
+                        }
+                    ?> 
+                Vac</td>
             <td></td>
             <td></td>
         </tr>
