@@ -7,20 +7,31 @@
         <style>
             table, td {
                 border: 1px solid black;
-                
+                border-collapse: collapse;
+            }
+            table tr:nth-child(even) {
+                background-color: #eee;
+            }
+            table tr:nth-child(odd) {
+                background-color: #fff;
+            }
+            table th {
+                background-color: darkblue;
+                color: white;
             }
           </style>
     </head>
     <body>
-    <table align="center">
+    <table style="width:100%" align="center">
+        <caption><h3>PM LINAC CHECKLIST</h3></caption>
     <!-- Title -->  
         <tr align="center">
-            <td>Catalogue</td>
-            <td>Description</td>
-            <td>Specification</td>
-            <td>Measured</td>
-            <td>Investigate/Adjustment</td>
-            <td>Result</td>
+            <th>Catalogue</th>
+            <th>Description</th>
+            <th>Specification</th>
+            <th>Measured</th>
+            <th>Investigate/Adjustment</th>
+            <th>Result</th>
         </tr>
     <!-- Gantry -->  
         <tr>
@@ -121,7 +132,7 @@
         </tr>
     <!-- Dielectric Gas System -->
         <tr>
-            <td>Dielectric Gas System</td>
+            <td style="text-align:center">Dielectric Gas System</td>
             <td>Pressure system SF6 check</td>
             <td>Baseline</td>
             <td>last value</td>
@@ -131,7 +142,7 @@
     <!-- Main Supply -->
         <tr>
             <td rowspan="6" style="text-align:center">Main Supply</td>
-            <td rowspan="3">Input to Stabilizer</td>
+            <td rowspan="3"><a href="db_input_ms.php" target="_blank">Input to Stabilizer</a></td>
             <td rowspan="3">Functional</td>
             <td>L1 = ... Vac</td>
             <td></td>
@@ -250,8 +261,8 @@
     <!-- Linac Hour -->
         <tr>
             <td rowspan="2" style="text-align:center">Linac Hour</td>
-            <td rowspan="2" style="text-align:center">(LT i275, p4)(HT i276, p4)</td>
-            <td rowspan="2" style="text-align:center">Baseline</td>
+            <td rowspan="2">(LT i275, p4)(HT i276, p4)</td>
+            <td rowspan="2">Baseline</td>
             <td>LT ...</td>
             <td></td>
             <td></td>
