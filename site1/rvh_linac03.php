@@ -1,28 +1,14 @@
 <?php
-//ตั้งค่าการเชื่อมต่อฐานข้อมูล
-    $database_host             = 'localhost';
-    $database_username         = 'root';
-    $database_password         = 'pbiservice'; //set password at privileges on phpmyadmin
-    $database_name             = 'lampang_cancer_hospital';
-    $data ;
-    $mysqli = new mysqli($database_host, $database_username, $database_password, $database_name);
-
-//กำหนด charset ให้เป็น utf8 เพื่อรองรับภาษาไทย
-    $mysqli->set_charset("utf8");
- 
-//กรณีมี Error เกิดขึ้น
-    if ($mysqli->connect_error) {
-        die('Error : ('. $mysqli->connect_errno .') '. $mysqli->connect_error);
-    }
+    require 'db_connected.php';
     
 //เรียกข้อมูลจาก ตาราง linac_versahd_154406 
-    $get_data = $mysqli->query("SELECT * FROM linac_versahd_154406 WHERE DatePM = '2019-08-18'");
+    $get_data = $mysqli->query("SELECT * FROM pmtest WHERE DatePM = '2019-10-24' ");
         while($data = $get_data->fetch_assoc()){
             $result[] = $data;
-            printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
+            //printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
         }
           
-    //print json_encode($result[0]);    
+   //print json_encode($result[0]);    
     //printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
         
 /* close connection */
@@ -32,8 +18,9 @@
 <html>
     <head>
         <title>Linac RVH | Service Engineer</title>
-        <link rel="stylesheet" href="_css/html5structure.css" type="text/css">
+        <!-- <link rel="stylesheet" href="_css/html5structure.css" type="text/css"> -->
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             table, td {
                 border: 1px solid black;
@@ -52,16 +39,19 @@
           </style>
     </head>
     <body>
+        <form name='formtest' method='post' action='insertform.php'>
+        <input type='date' id='newdatepm' name='datepm'>
     <table style="width:100%" align="center">
         <caption><h3>PM LINAC CHECKLIST</h3></caption>
+         
     <!-- Title -->  
         <tr align="center">
             <th>Catalogue</th>
             <th>Description</th>
             <th>Specification</th>
+            <th>Last Measured</th>
             <th>Measured</th>
             <th>Investigate/Adjustment</th>
-            <th>Result</th>
         </tr>         
     <!-- Gantry -->  
         <tr>
@@ -70,18 +60,22 @@
             <td>น้อยกว่าเท่ากับ 1.0 องศา</td>
             <?php
                     foreach($result as $result_tb){
-                            echo "<td>".$result_tb['Input_to_stabilizer_L2']."</td>";
-                            echo "<td>".$result_tb['Input_to_stabilizer_L3']."</td>";                           
+                            echo "<td>".$result_tb['MotorBrush']."</td>";                                 
                     }
                 ?>
-            
-            <td>Result</td> 
+             <td><input type='text' name="mb" /><br>
+                </td>
+            <td></td> 
         </tr>
         <tr>
             <td>Description</td>
             <td>Gantry angle at 0, 90, 180, 270</td>
-            <td>last value</td>
-            <td></td>
+            <?php
+                    foreach($result as $result_tb){
+                            echo "<td>".$result_tb['Gun']."</td>";                                 
+                    }
+                ?>
+            <td><input type='text' name="gun" /></td>
             <td></td>
         </tr>
     <!-- Collimator head -->    
@@ -179,11 +173,7 @@
             <td rowspan="6" style="text-align:center">Main Supply</td>
             <td rowspan="3"><a href="db_lampang03.php" target="_blank">Input to Stabilizer</a></td>
             <td rowspan="3">Functional</td>
-            <td>L1 = <?php
-                    foreach($result as $result_tb){
-                            echo $result_tb['Input_to_stabilizer_L1'];
-                        }
-                    ?> 
+            <td>L1 =  
                 Vac</td>
             <td></td>
             <td></td>
@@ -313,5 +303,8 @@
             <td></td>
         </tr>
         </table>
+        
+        <input type='submit' value='Save' name='all_submit' />
+        </form>    
     </body>
 </html>
