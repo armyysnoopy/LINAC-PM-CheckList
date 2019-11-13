@@ -1,29 +1,11 @@
 <?php
-//ตั้งค่าการเชื่อมต่อฐานข้อมูล
-    $database_host             = 'localhost';
-    $database_username         = 'root';
-    $database_password         = ''; //set password at privileges on phpmyadmin
-    $database_name             = 'rvh';
-    $data ;
-    $mysqli = new mysqli($database_host, $database_username, $database_password, $database_name);
-//กำหนด charset ให้เป็น utf8 เพื่อรองรับภาษาไทย
-    $mysqli->set_charset("utf8");
- 
-//กรณีมี Error เกิดขึ้น
-    if ($mysqli->connect_error) {
-        die('Error : ('. $mysqli->connect_errno .') '. $mysqli->connect_error);
-    }
-    
-//เรียกข้อมูลจาก ตาราง synergy_151792 
+    require 'rvh_connectdb.php';
+    //เรียกข้อมูลจาก ตาราง synergy_151792 
     $get_data = $mysqli->query("SELECT * FROM synergy_151792 WHERE date_pm = '2019-11-02'");
         while($data = $get_data->fetch_assoc()){
             $result[] = $data;
         }
-          
-    //print json_encode($result[0]);    
-    //printf ("%s %s \n", $data["Input_to_stabilizer_L1"], $data["Input_to_stabilizer_L2"]);
-        
-/* close connection */
+    /* close connection */
     $mysqli->close();
 ?>
 <!DOCTYPE html>
@@ -50,6 +32,8 @@
           </style>
     </head>
     <body>
+    <form name='form_rvh' method='post' action='rvh_synergy_insertform.php'>
+        <input type='date' id='newdatepm' name='adj_datepm'>
     <table style="width:100%" align="center">
         <caption><h5>PM CHECKLIST : Synergy RVH</h5></caption>
     <!-- Title  -->  
@@ -57,13 +41,13 @@
             <th>Catalogue</th>
             <th>Description</th>
             <th>Specification</th>
+            <th>Last Measured</th>
             <th>Measured</th>
             <th>Investigate/Adjustment</th>
-            <th>Result</th>
         </tr>         
     <!-- Gantry -->  
         <tr>
-        <td rowspan="2" style="text-align:center"><a href="rvh_synergy_gantry.php" target="_blank">Gantry</td>
+            <td rowspan="5" style="text-align:center"><a href="rvh_synergy_gantry.php" target="_blank">(1) Gantry</td>
             <td>Gantry angle zero</td>
             <td>น้อยกว่าเท่ากับ 1.0 องศา</td>
             <td><?php
@@ -71,8 +55,8 @@
                             echo $result_tb['gantry_angle_zero'];
                         }
                     ?></td>
-            <td></td>          
-            <td>Result</td> 
+            <td><input type='text' name="gantry_angle_zero"/></td>          
+            <td><input type='text' name="adj_gantry_angle_zero"/></td> 
         </tr>
         <tr>
             <td>Gantry angle</td>
@@ -82,12 +66,45 @@
                             echo $result_tb['gantry_angle'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="gantry_angle"/></td>          
+            <td><input type='text' name="adj_gantry_angle"/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบการทำงาน Motor และสายพาน</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['gantry_motor'];
+                        }
+                    ?></td>
+            <td><input type='text' name="gantry_motor"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสภาพ POT. และ Timing Belt</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['gantry_pot'];
+                        }
+                    ?></td>
+            <td><input type='text' name="gantry_pot"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ทำความสะอาด/ปรับแต่ง</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['gantry_clean'];
+                        }
+                    ?></td>
+            <td><input type='text' name="gantry_clean"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
     <!-- Collimator head -->    
         <tr>
-            <td rowspan="7" style="text-align:center"><a href="rvh_synergy_collimator.php" target="_blank">Collimator head</td>
+            <td rowspan="10" style="text-align:center"><a href="rvh_synergy_collimator.php" target="_blank">(2) Collimator head</td>
             <td>Collimator angle</td>
             <td>1.0 องศา</td>
             <td><?php
@@ -95,8 +112,8 @@
                             echo $result_tb['collimator_angle'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="collimator_angle"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td rowspan="2" >Crosswire screen</td>
@@ -106,8 +123,8 @@
                             echo $result_tb['crosswire_screen_ssd'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="crosswire_screen_ssd"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>2mm (on floor)</td>
@@ -116,8 +133,8 @@
                             echo $result_tb['crosswire_screen_floor'];
                         }
                     ?></td>
-            <td></td>  
-            <td></td>     
+            <td><input type='text' name="crosswire_screen_floor"/></td>          
+            <td><input type='text' name=""/></td>     
         </tr>
         <tr>
             <td>Distance meter</td>
@@ -127,8 +144,8 @@
                             echo $result_tb['distance_meter'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="distance_meter"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Laser ที่ Isocenter</td>
@@ -138,19 +155,41 @@
                             echo $result_tb['laser_isocenter'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="laser_isocenter"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบการทำงาน Wedge และหล่อลื่น</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['collimator_wedge'];
+                        }
+                    ?></td>
+            <td><input type='text' name="collimator_wedge"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบการเคลื่อนที่ชิ้นส่วนของกลไก</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['collimator_movement'];
+                        }
+                    ?></td>
+            <td><input type='text' name="collimator_movement"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Field size</td>
-            <td>2mm</td>
+            <td>น้อยกว่าเท่ากับ 2mm</td>
             <td><?php
                     foreach($result as $result_tb){
                             echo $result_tb['field_size'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="field_size"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td colspan ="2"><a href="rvh_synergy_cameracond.php" target="_blank">The Camera Cond (i2217, P101 CCV) for MLCi & Beam Modulator only *Not for Agility Head*</td>
@@ -159,12 +198,23 @@
                             echo $result_tb['camera_cond'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="camera_cond"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>Leaves run cycle test</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['collimator_leaves'];
+                        }
+                    ?></td>
+            <td><input type='text' name="collimator_leaves"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
     <!-- Precise Table -->
         <tr>
-            <td rowspan="5" style="text-align:center"><a href="rvh_synergy_table.php" target="_blank">Precise Table</td>
+            <td rowspan="9" style="text-align:center"><a href="rvh_synergy_table.php" target="_blank">(3) Precise Table</td>
             <td>Table height readout error</td>
             <td>1 mm</td>
             <td><?php
@@ -172,8 +222,8 @@
                             echo $result_tb['tb_height'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="tb_height"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Table lateral readout error</td>
@@ -183,8 +233,8 @@
                             echo $result_tb['tb_lateral'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="tb_lateral"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Table long readout error</td>
@@ -194,8 +244,8 @@
                             echo $result_tb['tb_long'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="tb_long"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Check Table Isocentric</td>
@@ -205,8 +255,41 @@
                             echo $result_tb['check_tb_isocentric'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="check_tb_isocentric"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบสภาพ Mechanics</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['tb_mech'];
+                        }
+                    ?></td>
+            <td><input type='text' name="tb_mech"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบ COntrol Panel</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['tb_ctrl_panel'];
+                        }
+                    ?></td>
+            <td><input type='text' name="tb_ctrl_panel"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบ Button, POT.</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['tb_pot'];
+                        }
+                    ?></td>
+            <td><input type='text' name="tb_pot"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>Motor Brush</td>
@@ -216,12 +299,82 @@
                             echo $result_tb['motor_brush'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="motor_brush"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ทำความสะอาด และอัดจารบี</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['tb_clean'];
+                        }
+                    ?></td>
+            <td><input type='text' name="tb_clean"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+    <!-- Hand Held Controller -->
+        <tr>
+            <td rowspan='3' style="text-align:center">(4) Hand Held Controller</td>
+            <td>Function check button and Potentiometers</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['hh_func_check'];
+                        }
+                    ?></td>
+            <td><input type='text' name="hh_func_check"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบสภาพของสายไฟ</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['hh_cable'];
+                        }
+                    ?></td>
+            <td><input type='text' name="hh_cable"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>ทำความสะอาด และปรับแต่ง</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['hh_clean'];
+                        }
+                    ?></td>
+            <td><input type='text' name="hh_clean"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+    <!-- Accessory check -->
+        <tr>
+            <td rowspan='2' style="text-align:center">(5) Accessory check</td>
+            <td>Applicator code</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['acc_applicator'];
+                        }
+                    ?></td>
+            <td><input type='text' name="acc_applicator"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>Shadow tray code</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['acc_shadow_tray'];
+                        }
+                    ?></td>
+            <td><input type='text' name="acc_shadow_tray"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
     <!-- Dielectric Gas System -->
         <tr>
-            <td style="text-align:center"><a href="rvh_synergy_dielectricgas.php" target="_blank">Dielectric Gas System</td>
+            <td rowspan='2' style="text-align:center"><a href="rvh_synergy_dielectricgas.php" target="_blank">(6) Dielectric Gas System</td>
             <td>Pressure system SF6 check</td>
             <td>Baseline</td>
             <td><?php
@@ -229,12 +382,36 @@
                             echo $result_tb['pressure_sys_sf6'];
                         }
                     ?></td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="pressure_sys_sf6"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+        <tr>
+            <td>Discharge และ Refill Gas</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['discharge_refillgas'];
+                        }
+                    ?></td>
+            <td><input type='text' name="discharge_refillgas"/></td>          
+            <td><input type='text' name=""/></td>
+        </tr>
+    <!-- Turbo Pump -->
+        <tr>
+            <td style="text-align:center">(7) Turbo Pump</td>
+            <td>ตรวจสอบระดับน้ำมันหล่อลื่น</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['turbo_pump'];
+                        }
+                    ?></td>
+            <td><input type='text' name="turbo_pump"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
     <!-- Main Supply -->
         <tr>
-            <td rowspan="6" style="text-align:center">Main Supply</td>
+            <td rowspan="6" style="text-align:center">(8) Main Supply</td>
             <td rowspan="3"><a href="rvh_synergy_ip_stblz.php" target="_blank">Input to Stabilizer</a></td>
             <td rowspan="3">Functional</td>
             <td>L1 = <?php
@@ -242,8 +419,8 @@
                             echo $result_tb['ip_stabilizer_l1'];
                         }
                     ?>  Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="ip_stabilizer_l1"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>L2 = <?php
@@ -251,8 +428,8 @@
                             echo $result_tb['ip_stabilizer_l2'];
                         }
                     ?>  Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="ip_stabilizer_l2"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>L3 = <?php
@@ -260,8 +437,8 @@
                             echo $result_tb['ip_stabilizer_l3'];
                         }
                     ?>   Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="ip_stabilizer_l3"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td rowspan="3" ><a href="rvh_synergy_op_stblz.php" target="_blank">Output to Stabilizer</td>
@@ -271,8 +448,8 @@
                             echo $result_tb['op_stabilizer_l1'];
                         }
                     ?>  Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="op_stabilizer_l1"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>L2 = <?php
@@ -280,8 +457,8 @@
                             echo $result_tb['op_stabilizer_l2'];
                         }
                     ?>  Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="op_stabilizer_l2"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
         <tr>
             <td>L3 = <?php
@@ -289,12 +466,12 @@
                             echo $result_tb['op_stabilizer_l3'];
                         }
                     ?>   Vac</td>
-            <td></td>
-            <td></td>
+            <td><input type='text' name="op_stabilizer_l3"/></td>          
+            <td><input type='text' name=""/></td>
         </tr>
     <!-- Thyratron Check -->
         <tr>
-            <td rowspan="5" style="text-align:center"><a href="rvh_synergy_thyratron.php" target="_blank">Thyratron Check</td>
+            <td rowspan="5" style="text-align:center"><a href="rvh_synergy_thyratron.php" target="_blank">(9) Thyratron Check</td>
             <td>Replenisher</td>
             <td>Hydrogen Heater voltage (5.2 to 5.8 Vac)</td>
             <td><?php
@@ -349,7 +526,7 @@
         </tr>
     <!-- Gun I Mon 6MV-->
         <tr>
-            <td style="text-align:center"><a href="rvh_synergy_gun.php" target="_blank">Gun I Mon 6MV</td>
+            <td style="text-align:center"><a href="rvh_synergy_gun.php" target="_blank">(10) Gun I Mon 6MV</td>
             <td>(i217, p4)</td>
             <td>Baseline</td>
             <td><?php
@@ -360,9 +537,55 @@
             <td></td>
             <td></td>
         </tr>
+    <!-- LCS/TCC MCC Control System -->
+        <tr>
+            <td rowspan="4" style="text-align:center">(11) LCS/TCC MCC Control System</td>
+            <td>Self test</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Cooling fan</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Checked and backup SQL</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>ทำความสะอาด และปรับแต่ง</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                ?></td>
+            <td></td>
+            <td></td>
+        </tr>
     <!-- Chiller -->
         <tr>
-            <td rowspan="2" style="text-align:center"><a href="rvh_synergy_chiller.php" target="_blank">Chiller</td>
+            <td rowspan="6" style="text-align:center"><a href="rvh_synergy_chiller.php" target="_blank">(12) Chiller</td>
             <td rowspan="2">Pressure water</td>
             <td rowspan="2">Functional</td>
             <td>Input <?php
@@ -382,9 +605,75 @@
             <td></td>
             <td></td>
         </tr>
+        <tr>
+            <td>ตรวจสอบ Temp</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?> C</td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบระดับน้ำ</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>ตรวจสอบสภาพท่อส่งน้ำ</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>ทำความสะอาด และปรับแต่ง</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
     <!-- iView -->
         <tr>
-            <td rowspan="2" style="text-align:center"><a href="rvh_synergy_iview.php" target="_blank">iView</td>
+            <td rowspan="5" style="text-align:center"><a href="rvh_synergy_iview.php" target="_blank">(13) iView</td>
+            <td>Collision interlocks/Touchguard</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Touchguard check interlock</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
             <td>Imaging and Treatment coordinate coincidence</td>
             <td>1mm (KV Flex map)</td>
             <td><?php
@@ -406,9 +695,42 @@
             <td>ex. Recalibrate image scalling</td>
             <td></td>
         </tr>
+        <tr>
+            <td>Image quality resolution</td>
+            <td>Baseline</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
     <!-- XVI -->
         <tr>
-            <td style="text-align:center"><a href="rvh_synergy_xvi.php" target="_blank">XVI</td>
+            <td rowspan="4" style="text-align:center"><a href="rvh_synergy_xvi.php" target="_blank">(14) XVI</td>
+            <td>Collision interlocks/Touchguard</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Touchguard check interlock</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
             <td>Imaging and Treatment coordinate isocenter</td>
             <td>1mm (with image registration)</td>
             <td><?php
@@ -419,9 +741,66 @@
             <td></td>
             <td></td>
         </tr>
+        <tr>
+            <td>Collimator and Filter</td>
+            <td>Check Filter All</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb['xvi_image_registration'];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+    <!-- HexaPOD -->
+        <tr>
+            <td rowspan="4" style="text-align:center">(15) HexaPOD</td>
+            <td>Connection overall</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Interlock check</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Correlation check</td>
+            <td>Functional</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Treament couch isocenter</td>
+            <td>น้อยกว่าเท่ากับ 1mm</td>
+            <td><?php
+                    foreach($result as $result_tb){
+                            echo $result_tb[''];
+                        }
+                    ?></td>
+            <td></td>
+            <td></td>
+        </tr>
     <!-- Linac Hour -->
         <tr>
-            <td rowspan="2" style="text-align:center"><a href="rvh_synergy_linachour.php" target="_blank">Linac Hour</td>
+            <td rowspan="2" style="text-align:center"><a href="rvh_synergy_linachour.php" target="_blank">(16) Linac Hour</td>
             <td rowspan="2">(LT i275, p4)(HT i276, p4)</td>
             <td rowspan="2">Baseline</td>
             <td>LT <?php
@@ -441,6 +820,17 @@
             <td></td>
             <td></td>
         </tr>
+    <!-- Miscellaneous -->
+        <tr>
+            <td style="text-align:center">(17) Miscellaneous</td>
+            <td colspan="5"><?php
+                foreach($result as $result_tb){
+                        echo $result_tb[''];
+                }
+            ?> </td>
+        </tr>
         </table>
+        <input type='submit' value='Save' name='all_submit' />
+        </form>
     </body>
 </html>
